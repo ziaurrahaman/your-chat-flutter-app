@@ -8,6 +8,7 @@ import 'package:your_chat_flutter_app/models/user_profile_model.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class SetProfileScreen extends StatefulWidget {
   static const routeName = 'set_profile_screen';
@@ -19,12 +20,14 @@ class SetProfileScreen extends StatefulWidget {
 class _SetProfileScreenState extends State<SetProfileScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey();
   File _pickedImage;
-  String fullName;
-  String profileName;
-  String occupation;
-  String hobby;
-  String tokenString;
+  String fullName='';
+  String profileName='';
+  String occupation='';
+  String hobby='';
+  String tokenString='';
   String userId;
+  ProgressDialog pro;
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   Future<void> _showOptionsDialog() {
     return showDialog(
@@ -54,6 +57,54 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
             ),
           );
         });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+
+
+    _firebaseMessaging.getToken().then((token) {
+
+      final tokenStr = token.toString();
+      tokenString = token;
+      print("Token: "+tokenString);
+
+    });
+
+
+    setProgressDialogue();
+    getTheCurrentUSerInfo();
+
+  }
+
+  getTheCurrentUSerInfo() async {
+    this.userId = '';
+    FirebaseAuth.instance.currentUser().then((val) {
+      setState(() {
+
+        this.userId = val.uid;
+        print(userId);
+
+      });
+
+    }).catchError((e) {
+      print(e);
+    });
+  }
+
+  setProgressDialogue() {
+    pro = new ProgressDialog(context);
+    pro = new ProgressDialog(context,
+        type: ProgressDialogType.Normal, isDismissible: true, showLogs: false);
+    pro.style(
+      message: 'Please wait...',
+      borderRadius: 10.0,
+      backgroundColor: Colors.white,
+      progressWidget: CircularProgressIndicator(),
+      elevation: 10.0,
+      insetAnimCurve: Curves.easeInOut,
+    );
   }
 
   Future<void> _pickImageFromGallery() async {
@@ -93,15 +144,6 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
     print('DownloadUrl: $downloadUrl');
     FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
-    _firebaseMessaging.getToken().then((token) {
-      final tokenStr = token.toString();
-      tokenString = token;
-      print("Token: " + tokenString);
-    });
-    final _auth = FirebaseAuth.instance;
-    final FirebaseUser user = await _auth.currentUser();
-    final uId = user.uid;
-    userId = uId;
 
     UserProfile userProfile = UserProfile(
         fullName: fullName,
