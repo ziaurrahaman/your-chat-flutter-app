@@ -29,6 +29,7 @@ dependencies:
   provider: ^4.0.4
   progress_dialog: ^1.2.1
   firebase_messaging:  ^6.0.13
+  page_transition: ^1.1.5
 
   
   

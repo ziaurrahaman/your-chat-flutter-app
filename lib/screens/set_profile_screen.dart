@@ -1,14 +1,17 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:your_chat_flutter_app/models/user_profile_model.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:progress_dialog/progress_dialog.dart';
-import 'package:progress_dialog/progress_dialog.dart';
+import 'package:page_transition/page_transition.dart';
+
+import 'home_screen.dart';
 
 class SetProfileScreen extends StatefulWidget {
   static const routeName = 'set_profile_screen';
@@ -20,14 +23,15 @@ class SetProfileScreen extends StatefulWidget {
 class _SetProfileScreenState extends State<SetProfileScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey();
   File _pickedImage;
-  String fullName='';
-  String profileName='';
-  String occupation='';
-  String hobby='';
-  String tokenString='';
+  String fullName = '';
+  String profileName = '';
+  String occupation = '';
+  String hobby = '';
+  String tokenString = '';
   String userId;
   ProgressDialog pro;
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  File file;
 
   Future<void> _showOptionsDialog() {
     return showDialog(
@@ -63,31 +67,23 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
   void initState() {
     // TODO: implement initState
 
-
     _firebaseMessaging.getToken().then((token) {
-
       final tokenStr = token.toString();
       tokenString = token;
-      print("Token: "+tokenString);
-
+      print("Token: " + tokenString);
     });
-
 
     setProgressDialogue();
     getTheCurrentUSerInfo();
-
   }
 
   getTheCurrentUSerInfo() async {
     this.userId = '';
     FirebaseAuth.instance.currentUser().then((val) {
       setState(() {
-
         this.userId = val.uid;
         print(userId);
-
       });
-
     }).catchError((e) {
       print(e);
     });
@@ -112,6 +108,7 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
         source: ImageSource.gallery, maxHeight: 150, maxWidth: 150);
     setState(() {
       _pickedImage = image;
+      file=image;
     });
     Navigator.of(context).pop();
   }
@@ -120,6 +117,7 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
     final image = await ImagePicker.pickImage(source: ImageSource.camera);
     setState(() {
       _pickedImage = image;
+      file=image;
     });
     Navigator.of(context).pop();
   }
@@ -133,8 +131,8 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
       Fluttertoast.showToast(msg: 'Image must not be empty');
       return;
     }
-    Firestore firestore = Firestore.instance;
-    String autoId = firestore.collection('Users').document().documentID;
+    /*Firestore firestore = Firestore.instance;
+    String autoId = firestore.collection('users').document().documentID;
     final storage = FirebaseStorage.instance
         .ref()
         .child('user_profile_image/$autoId/image');
@@ -142,7 +140,23 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
     final downloadUrl =
         (await uploadTask.onComplete).ref.getDownloadURL().toString();
     print('DownloadUrl: $downloadUrl');
-    FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+    FirebaseMessaging _firebaseMessaging = FirebaseMessaging();*/
+
+
+    Firestore firestore = Firestore.instance;
+    String autoId = firestore
+        .collection("users")
+        .document()
+        .documentID;
+
+    StorageReference ref=FirebaseStorage.instance.ref().child('user_profile_image/$autoId /pic');
+
+    StorageUploadTask uploadTask=ref.putFile(_pickedImage);
+
+    var downURL=await(await uploadTask.onComplete).ref.getDownloadURL();
+    var url=downURL.toString();
+    print("DownURL:"+url);
+
 
 
     UserProfile userProfile = UserProfile(
@@ -151,7 +165,10 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
         occupation: occupation,
         hobby: hobby,
         aToken: [tokenString],
-        userId: userId);
+        userId: userId,
+        picUrl: url,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now());
 
     firestore
         .collection('users')
@@ -159,7 +176,16 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
         .setData(userProfile.toJson(userProfile))
         .then((result) {
       print('Data Saved');
-      Fluttertoast.showToast(msg: 'Your profile has been created successfully');
+      showToast('Your profile has been created successfully');
+      pro.hide();
+
+      setState(() {
+        Navigator.push(
+            context,
+            PageTransition(
+                type: PageTransitionType.leftToRight,
+                child: Home()));
+      });
     });
 
     Fluttertoast.showToast(
@@ -354,7 +380,10 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
                       ),
                       RaisedButton(
                         color: Color(0xFF24D39D),
-                        onPressed: _submit,
+                        onPressed:(){
+                          pro.show();
+                          _submit();
+                        },
                         child: Text(
                           'Save',
                           style: TextStyle(color: Colors.white),
@@ -369,5 +398,16 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
         ),
       ),
     );
+  }
+
+
+  void showToast(String s) {
+    Fluttertoast.showToast(
+        msg: s,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 15.0);
   }
 }
