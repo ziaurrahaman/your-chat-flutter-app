@@ -232,21 +232,24 @@ class _YourChatChatScreenState extends State<YourChatChatScreen> {
               }
               return Expanded(
                 child: ListView.builder(
-                  itemCount: snapshot.data.documents.length,
-                  itemBuilder: (context, index) => ChatItem(
-                    peerProfileImageUrl: peerProfileImageUrl,
-                    peerProfileName: peerProfileName,
-                    currentUserProfileName:
-                        _sharedPreferences.getString('profileName') ?? '',
-                    currentUserImageUrl:
-                        _sharedPreferences.getString('profileImage') ?? '',
-                    message: snapshot.data.documents[index]['message'],
-                    sendingTime: snapshot.data.documents[index]['timeStamp'],
-                    idFrom: snapshot.data.documents[index]['idFrom'],
-                    idTo: snapshot.data.documents[index]['idTo'],
-                    currentUserId: currentUserId,
-                  ),
-                ),
+                    reverse: true,
+                    itemCount: snapshot.data.documents.length,
+                    itemBuilder: (context, index) {
+                      var lists = snapshot.data.documents.reversed.toList();
+                      return ChatItem(
+                        peerProfileImageUrl: peerProfileImageUrl,
+                        peerProfileName: peerProfileName,
+                        currentUserProfileName:
+                            _sharedPreferences.getString('profileName') ?? '',
+                        currentUserImageUrl:
+                            _sharedPreferences.getString('profileImage') ?? '',
+                        message: lists[index]['message'],
+                        sendingTime: lists[index]['timeStamp'],
+                        idFrom: lists[index]['idFrom'],
+                        idTo: lists[index]['idTo'],
+                        currentUserId: currentUserId,
+                      );
+                    }),
               );
             },
           ),
