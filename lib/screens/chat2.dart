@@ -178,7 +178,7 @@ class _YourChatChatScreenState extends State<YourChatChatScreen> {
                 color: Colors.white54,
                 iconSize: 25,
                 onPressed: () {
-                  print('messsag: $inputMessage');
+                  print('messsag: ${textEditingController.text.toString()}');
                   onMessageSend(textEditingController.text.toString());
                 },
               ),
@@ -332,41 +332,49 @@ class ChatItem extends StatelessWidget {
           isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: <Widget>[
         Row(
+          mainAxisAlignment:
+              isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: CircleAvatar(
                 backgroundImage: NetworkImage(
                     isMe ? currentUserImageUrl : peerProfileImageUrl),
               ),
             ),
             Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8),
                   child: Text(
                     isMe ? currentUserProfileName : peerProfileName,
                     style: TextStyle(fontSize: 16, color: Colors.white54),
                   ),
                 ),
-                Material(
-                  elevation: 6,
-                  color:
-                      isMe ? containerColor.withOpacity(0.8) : Colors.white54,
-                  borderRadius: isMe
-                      ? BorderRadius.only(
-                          topRight: Radius.circular(30),
-                          bottomLeft: Radius.circular(30),
-                          bottomRight: Radius.circular(30))
-                      : BorderRadius.only(
-                          topRight: Radius.circular(30),
-                          bottomRight: Radius.circular(30),
-                          bottomLeft: Radius.circular(30)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      message,
-                      style: TextStyle(color: Colors.white),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Material(
+                    elevation: 6,
+                    color:
+                        isMe ? containerColor.withOpacity(0.8) : Colors.white54,
+                    borderRadius: isMe
+                        ? BorderRadius.only(
+                            // topRight: Radius.circular(30),
+                            topLeft: Radius.circular(30),
+                            bottomLeft: Radius.circular(30),
+                            bottomRight: Radius.circular(30))
+                        : BorderRadius.only(
+                            topRight: Radius.circular(30),
+                            bottomRight: Radius.circular(30),
+                            bottomLeft: Radius.circular(30)),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 15),
+                      child: Text(
+                        message,
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
                     ),
                   ),
                 ),
@@ -398,15 +406,20 @@ class ChatItem extends StatelessWidget {
                 //   ),
                 // ),
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    DateFormat('dd MMM kk:mm').format(
-                        DateTime.fromMillisecondsSinceEpoch(
-                            int.parse(sendingTime))),
-                    style: TextStyle(
-                        color: Colors.white54,
-                        fontSize: 12.0,
-                        fontStyle: FontStyle.italic),
+                  padding: const EdgeInsets.all(6.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      Text(
+                        DateFormat('dd MMM kk:mm').format(
+                            DateTime.fromMillisecondsSinceEpoch(
+                                int.parse(sendingTime))),
+                        style: TextStyle(
+                            color: Colors.white54,
+                            fontSize: 12.0,
+                            fontStyle: FontStyle.italic),
+                      ),
+                    ],
                   ),
                 ),
                 // Text(isMe.toString())
