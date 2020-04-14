@@ -9,7 +9,13 @@ class UserProfile {
   bool isActive = false;
   List<String> aToken = [];
   String userId;
+<<<<<<< HEAD
   String imageUrl;
+=======
+  String picUrl;
+  DateTime createdAt = DateTime.now();
+  DateTime updatedAt = DateTime.now();
+>>>>>>> c496632d10237f9144bc1412f4ab7cba5b784ec3
 
   UserProfile(
       {@required this.fullName,
@@ -19,7 +25,29 @@ class UserProfile {
       this.isActive,
       this.aToken,
       this.userId,
+<<<<<<< HEAD
       this.imageUrl});
+=======
+      this.picUrl,
+      this.createdAt,
+      this.updatedAt});
+
+
+  UserProfile.fromMap(Map snapshot)
+      : fullName = snapshot['fullName'] ?? '',
+        profileName = snapshot['profileName'] ?? '',
+        occupation = snapshot['occupation'] ?? '',
+        hobby = snapshot['hobby'] ?? '',
+        isActive = snapshot['isActive'] ?? '',
+        aToken = snapshot['atoken']!=null? snapshot['atoken'].cast<String>() : List<String>(),
+        picUrl = snapshot['picUrl'] ?? '',
+
+        createdAt =
+            snapshot['createdAt'].toDate() ?? new DateTime.now(),
+        updatedAt =
+            snapshot['updatedAt'].toDate() ?? new DateTime.now();
+
+>>>>>>> c496632d10237f9144bc1412f4ab7cba5b784ec3
 
   Map<String, dynamic> toJson(UserProfile userProfile) => {
         'fullName': userProfile.fullName,
@@ -27,7 +55,14 @@ class UserProfile {
         'occupation': userProfile.occupation,
         'hobby': userProfile.hobby,
         'token': userProfile.aToken,
+<<<<<<< HEAD
         'imageUrl': userProfile.imageUrl,
         'userId': userProfile.userId
+=======
+        'userId': userProfile.userId,
+        'picUrl': userProfile.picUrl,
+        'createdAt': userProfile.createdAt,
+        'updatedAt': userProfile.updatedAt,
+>>>>>>> c496632d10237f9144bc1412f4ab7cba5b784ec3
       };
 }
