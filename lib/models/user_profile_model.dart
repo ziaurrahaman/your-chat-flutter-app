@@ -9,6 +9,7 @@ class UserProfile {
   bool isActive = false;
   List<String> aToken = [];
   String userId;
+  String imageUrl;
 
   UserProfile(
       {@required this.fullName,
@@ -17,7 +18,8 @@ class UserProfile {
       @required this.hobby,
       this.isActive,
       this.aToken,
-      this.userId});
+      this.userId,
+      this.imageUrl});
 
   Map<String, dynamic> toJson(UserProfile userProfile) => {
         'fullName': userProfile.fullName,
@@ -25,5 +27,7 @@ class UserProfile {
         'occupation': userProfile.occupation,
         'hobby': userProfile.hobby,
         'token': userProfile.aToken,
+        'imageUrl': userProfile.imageUrl,
+        'userId': userProfile.userId
       };
 }

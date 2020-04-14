@@ -28,8 +28,8 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       // backgroundColor: Color(0xff171719),
-      backgroundColor: Color.fromARGB(100, 0, 105, 92),
-      // backgroundColor: Color(0xff006064),
+      // backgroundColor: Color.fromARGB(100, 0, 105, 92),
+      backgroundColor: Color(0xff006064),
       body: SingleChildScrollView(
         child: Container(
           child: Column(

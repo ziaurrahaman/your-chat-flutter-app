@@ -133,6 +133,21 @@ class _AuthenticationFormState extends State<AuthenticationForm>
         .animate(CurvedAnimation(curve: Curves.linear, parent: _controller));
     _slideAnimation = Tween<Offset>(begin: Offset(0, -1.0), end: Offset(0, 0))
         .animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
+    setProgressDialogue();
+  }
+
+  setProgressDialogue() {
+    progressDialog = new ProgressDialog(context);
+    progressDialog = new ProgressDialog(context,
+        type: ProgressDialogType.Normal, isDismissible: true, showLogs: false);
+    progressDialog.style(
+      message: 'Please wait...',
+      borderRadius: 10.0,
+      backgroundColor: Colors.white,
+      progressWidget: CircularProgressIndicator(),
+      elevation: 10.0,
+      insetAnimCurve: Curves.easeInOut,
+    );
   }
 
   Future<void> _submit() async {
@@ -140,6 +155,7 @@ class _AuthenticationFormState extends State<AuthenticationForm>
       return;
     }
     _formKey.currentState.save();
+    progressDialog.show();
 
     try {
       if (_authMode == AuthMode.SignUp) {
@@ -147,6 +163,7 @@ class _AuthenticationFormState extends State<AuthenticationForm>
             email: _authData['email'], password: _authData['password']);
         if (response != null) {
           print('Singup button is clicked');
+          progressDialog.hide();
           Navigator.of(context).pushNamed(SetProfileScreen.routeName);
         }
       } else {
@@ -155,6 +172,7 @@ class _AuthenticationFormState extends State<AuthenticationForm>
 
         if (response != null) {
           print('login button is clicked');
+          progressDialog.hide();
           Navigator.of(context).pushNamed(YourChatHomeScreen.routeName);
         }
       }

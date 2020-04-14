@@ -8,7 +8,8 @@ import 'package:your_chat_flutter_app/models/user_profile_model.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import 'package:progress_dialog/progress_dialog.dart';
+// import 'package:progress_dialog/progress_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SetProfileScreen extends StatefulWidget {
   static const routeName = 'set_profile_screen';
@@ -20,14 +21,16 @@ class SetProfileScreen extends StatefulWidget {
 class _SetProfileScreenState extends State<SetProfileScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey();
   File _pickedImage;
-  String fullName='';
-  String profileName='';
-  String occupation='';
-  String hobby='';
-  String tokenString='';
+  String fullName = '';
+  String profileName = '';
+  String occupation = '';
+  String hobby = '';
+  String tokenString = '';
   String userId;
+  String imageUrl;
   ProgressDialog pro;
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  SharedPreferences _sharedPreferences;
 
   Future<void> _showOptionsDialog() {
     return showDialog(
@@ -62,32 +65,26 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
   @override
   void initState() {
     // TODO: implement initState
-
+    super.initState();
 
     _firebaseMessaging.getToken().then((token) {
-
       final tokenStr = token.toString();
       tokenString = token;
-      print("Token: "+tokenString);
-
+      print("Token: " + tokenString);
     });
-
 
     setProgressDialogue();
     getTheCurrentUSerInfo();
-
   }
 
   getTheCurrentUSerInfo() async {
     this.userId = '';
     FirebaseAuth.instance.currentUser().then((val) {
       setState(() {
-
         this.userId = val.uid;
-        print(userId);
-
+        print('UserId: $userId');
+        print('UserIdInInteger: ${userId.hashCode.toString()}');
       });
-
     }).catchError((e) {
       print(e);
     });
@@ -133,17 +130,24 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
       Fluttertoast.showToast(msg: 'Image must not be empty');
       return;
     }
+    pro.show();
     Firestore firestore = Firestore.instance;
     String autoId = firestore.collection('Users').document().documentID;
     final storage = FirebaseStorage.instance
         .ref()
-        .child('user_profile_image/$autoId/image');
+        .child('user_profile_image/$userId/image');
     StorageUploadTask uploadTask = storage.putFile(_pickedImage);
-    final downloadUrl =
-        (await uploadTask.onComplete).ref.getDownloadURL().toString();
-    print('DownloadUrl: $downloadUrl');
-    FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+    // final downloadImageUrl = (await uploadTask.onComplete).ref.getDownloadURL();
+    // var imageUrl = downloadImageUrl.toString();
+    try {
+      var dowurl = await (await uploadTask.onComplete).ref.getDownloadURL();
+      imageUrl = dowurl.toString();
+      print('DownloadUrl: $imageUrl');
+    } catch (error) {
+      print(error);
+    }
 
+    FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
     UserProfile userProfile = UserProfile(
         fullName: fullName,
@@ -151,21 +155,29 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
         occupation: occupation,
         hobby: hobby,
         aToken: [tokenString],
-        userId: userId);
+        userId: userId,
+        imageUrl: imageUrl);
 
-    firestore
-        .collection('users')
-        .document(userId)
-        .setData(userProfile.toJson(userProfile))
-        .then((result) {
-      print('Data Saved');
-      Fluttertoast.showToast(msg: 'Your profile has been created successfully');
-    });
-
-    Fluttertoast.showToast(
-      msg: 'Form validate',
-      toastLength: Toast.LENGTH_SHORT,
-    );
+    try {
+      await firestore
+          .collection('users')
+          .document(userId)
+          .setData(userProfile.toJson(userProfile))
+          .then((result) async {
+        print('Data Saved');
+        _sharedPreferences = await SharedPreferences.getInstance();
+        _sharedPreferences.setString('id', userId);
+        _sharedPreferences.setString('profileName', profileName);
+        _sharedPreferences.setString('fullName', fullName);
+        _sharedPreferences.setString('profileImage', imageUrl);
+        pro.hide();
+        Fluttertoast.showToast(
+            msg: 'Your profile has been created successfully');
+        Navigator.of(context).pushNamed('your_chat_home_screen');
+      });
+    } catch (error) {
+      print(error);
+    }
   }
 
   @override
@@ -205,8 +217,11 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
                           )
                         : Container(
                             decoration: BoxDecoration(shape: BoxShape.circle),
-                            child: Image.file(
-                              _pickedImage,
+                            child: CircleAvatar(
+                              radius: 80,
+                              backgroundImage: FileImage(
+                                _pickedImage,
+                              ),
                             )),
                     SizedBox(
                       height: 20,
