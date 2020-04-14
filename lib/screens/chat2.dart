@@ -155,11 +155,11 @@ class _YourChatChatScreenState extends State<YourChatChatScreen> {
               // ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 10),
+                  padding: const EdgeInsets.only(left: 12),
                   child: TextField(
-                    onSubmitted: (value) {
-                      inputMessage = value;
-                    },
+                    // onSubmitted: (value) {
+                    //   inputMessage = value;
+                    // },
                     controller: textEditingController,
                     decoration: InputDecoration(
                         border: InputBorder.none,
