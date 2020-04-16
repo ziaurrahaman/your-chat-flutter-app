@@ -222,35 +222,56 @@ class _YourChatChatScreenState extends State<YourChatChatScreen> {
                 .document(groupChatId)
                 .collection(groupChatId)
                 .snapshots(),
+            // initialData: null,
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
+                if (snapshot.connectionState == ConnectionState.none) {
+                  return Text('none');
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Text('waiting');
+                }
+                if (snapshot.connectionState == ConnectionState.active) {
+                  return Text('none');
+                }
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return Text('done');
+                }
                 return Center(
                   child: CircularProgressIndicator(
                     backgroundColor: Colors.white70,
                   ),
                 );
+              } else {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return Text('done');
+                }
+                // if (snapshot.connectionState == ConnectionState.active) {
+                //   return Text('active');
+                // }
+                return Expanded(
+                  child: ListView.builder(
+                      reverse: true,
+                      itemCount: snapshot.data.documents.length,
+                      itemBuilder: (context, index) {
+                        var lists = snapshot.data.documents.reversed.toList();
+                        return ChatItem(
+                          peerProfileImageUrl: peerProfileImageUrl,
+                          peerProfileName: peerProfileName,
+                          currentUserProfileName:
+                              _sharedPreferences.getString('profileName') ?? '',
+                          currentUserImageUrl:
+                              _sharedPreferences.getString('profileImage') ??
+                                  '',
+                          message: lists[index]['message'],
+                          sendingTime: lists[index]['timeStamp'],
+                          idFrom: lists[index]['idFrom'],
+                          idTo: lists[index]['idTo'],
+                          currentUserId: currentUserId,
+                        );
+                      }),
+                );
               }
-              return Expanded(
-                child: ListView.builder(
-                    reverse: true,
-                    itemCount: snapshot.data.documents.length,
-                    itemBuilder: (context, index) {
-                      var lists = snapshot.data.documents.reversed.toList();
-                      return ChatItem(
-                        peerProfileImageUrl: peerProfileImageUrl,
-                        peerProfileName: peerProfileName,
-                        currentUserProfileName:
-                            _sharedPreferences.getString('profileName') ?? '',
-                        currentUserImageUrl:
-                            _sharedPreferences.getString('profileImage') ?? '',
-                        message: lists[index]['message'],
-                        sendingTime: lists[index]['timeStamp'],
-                        idFrom: lists[index]['idFrom'],
-                        idTo: lists[index]['idTo'],
-                        currentUserId: currentUserId,
-                      );
-                    }),
-              );
             },
           ),
           _buildSendMessage()

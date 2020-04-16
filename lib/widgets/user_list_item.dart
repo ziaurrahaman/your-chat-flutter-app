@@ -30,8 +30,12 @@ class UserListItme extends StatelessWidget {
                     )));
       },
       child: ListTile(
-        leading:
-            CircleAvatar(radius: 30, backgroundImage: NetworkImage(imageUrl)),
+        leading: CircleAvatar(
+            radius: 30,
+            backgroundImage: imageUrl == null
+                ? NetworkImage(
+                    'https://images.unsplash.com/photo-1526800544336-d04f0cbfd700?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1567&q=80')
+                : NetworkImage(imageUrl)),
         title: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text(fullName),
