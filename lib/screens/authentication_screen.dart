@@ -1,26 +1,49 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:your_chat_flutter_app/screens/home_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:your_chat_flutter_app/screens/home_screen2.dart';
 import 'package:your_chat_flutter_app/screens/set_profile_screen.dart';
-import 'package:progress_dialog/progress_dialog.dart';
 
 enum AuthMode { SignUp, Login }
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
+  @override
+  _SignUpScreenState createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     double height =
         MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
     double width = MediaQuery.of(context).size.width;
+
     Widget logo() {
-      return Positioned(
+      /*return Positioned(
         top: 60,
         left: 160,
-        child: Image.asset('assets/images/messenger_logo.png'),
+        child: Image.asset('assets/images/logo.png'),
         height: 80,
         width: 80,
+      );*/
+
+      return Container(
+        margin: EdgeInsets.only(top: 50.0),
+        child: Center(
+          child: Image.asset(
+            'assets/images/logo.png',
+            height: 130.0,
+            width: 130.0,
+          ),
+        ),
       );
     }
 
@@ -30,7 +53,7 @@ class SignUpScreen extends StatelessWidget {
         left: 145,
         child: Text(
           'Your Chat',
-          style: TextStyle(
+          style: GoogleFonts.pTSans(
               color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold),
         ),
       );
@@ -54,38 +77,18 @@ class SignUpScreen extends StatelessWidget {
       );
     }
 
-    // Widget colorBackground() {
-    //   return Positioned(
-    //       top: 420,
-    //       child: Container(
-    //         height: 100,
-    //         width: MediaQuery.of(context).size.width,
-    //         decoration: BoxDecoration(
-    //           color: Colors.red,
-    //           borderRadius: BorderRadius.only(
-    //               bottomRight: Radius.circular(120),
-    //               bottomLeft: Radius.circular(120),
-    //               topRight: Radius.circular(120)),
-    //         ),
-    //       ));
-    // }
-
-    // Widget emailPasswordPortion() {
-    //   return;
-    // }
-
     return Scaffold(
       body: SingleChildScrollView(
         child: Stack(
           children: <Widget>[
             Container(
               height: MediaQuery.of(context).size.height,
-              color: Color(0xFF24D39D),
+              color: Colors.white,
               // color: Color.fromARGB(255, 255, 191, 128),
             ),
-            colorPortion(),
+            //colorPortion(),
             logo(),
-            logoText(),
+            //logoText(),
             // colorBackground(),
             AuthenticationForm(width: width, height: height)
           ],
@@ -111,6 +114,11 @@ class AuthenticationForm extends StatefulWidget {
 
 class _AuthenticationFormState extends State<AuthenticationForm>
     with SingleTickerProviderStateMixin {
+
+
+  bool _toggleVisibility=true;
+  bool _toggleConfirmVisibility=true;
+
   var passwordTextfieldController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey();
   AuthMode _authMode = AuthMode.Login;
@@ -217,31 +225,26 @@ class _AuthenticationFormState extends State<AuthenticationForm>
         child: Column(
           children: <Widget>[
             SizedBox(
-              height: 40,
+              height: 20,
             ),
             Text(
               _authMode == AuthMode.SignUp ? 'SignUp Here' : 'LogIn Here',
-              style: TextStyle(
+              style: GoogleFonts.ubuntu(
                   fontSize: 32,
                   color: Colors.black,
                   fontWeight: FontWeight.bold),
             ),
             SizedBox(
-              height: 15,
+              height: 25,
             ),
-            Form(
-              key: _formKey,
-              // child: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 24,
-                      right: 24,
-                      top: 10,
-                      bottom: 10,
-                    ),
-                    child: TextFormField(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              child: Form(
+                key: _formKey,
+                // child: SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    TextFormField(
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         hintText: 'Email',
@@ -249,7 +252,7 @@ class _AuthenticationFormState extends State<AuthenticationForm>
                       validator: (value) {
                         String errorMessage;
                         if (value.isEmpty || !value.contains('@')) {
-                          errorMessage = 'Invaid email !';
+                          errorMessage = 'Invaid email or Email field is empty !';
                         }
                         return errorMessage;
                       },
@@ -257,18 +260,24 @@ class _AuthenticationFormState extends State<AuthenticationForm>
                         _authData['email'] = value;
                       },
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 24,
-                      right: 24,
-                      top: 10,
-                      bottom: 10,
+                    SizedBox(
+                      height: 20.0,
                     ),
-                    child: TextFormField(
+                    TextFormField(
                       controller: passwordTextfieldController,
                       keyboardType: TextInputType.visiblePassword,
-                      decoration: InputDecoration(hintText: 'password'),
+                      decoration: InputDecoration(
+                          hintText: 'password',
+                          suffixIcon: IconButton(
+                            onPressed: (){
+                              setState(() {
+                                _toggleVisibility=!_toggleVisibility;
+                              });
+                            },
+                            icon: _toggleVisibility?Icon(Icons.visibility_off):Icon(Icons.visibility),
+                          )
+                      ),
+                      obscureText: _toggleVisibility,
                       validator: (value) {
                         String errorMessage;
                         if (value.length <= 5) {
@@ -285,64 +294,76 @@ class _AuthenticationFormState extends State<AuthenticationForm>
                         _authData['password'] = value;
                       },
                     ),
-                  ),
-                  AnimatedContainer(
-                    duration: Duration(seconds: 1),
-                    curve: Curves.linear,
-                    constraints: BoxConstraints(
-                        minHeight: _authMode == AuthMode.SignUp ? 60 : 0,
-                        maxHeight: _authMode == AuthMode.SignUp ? 120 : 0),
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        left: 24,
-                        right: 24,
-                        top: 10,
-                        bottom: 10,
-                      ),
-                      child: FadeTransition(
-                        opacity: _opacityAnimation,
-                        child: SlideTransition(
-                          position: _slideAnimation,
-                          child: TextFormField(
-                            enabled: _authMode == AuthMode.SignUp,
-                            obscureText: true,
-                            keyboardType: TextInputType.visiblePassword,
-                            decoration:
-                                InputDecoration(hintText: 'confirm password'),
-                            validator: _authMode == AuthMode.SignUp
-                                ? (value) {
-                                    String errorMessage;
-                                    if (value !=
-                                        passwordTextfieldController.text) {
-                                      errorMessage = 'Password not matched';
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    AnimatedContainer(
+                      duration: Duration(seconds: 1),
+                      curve: Curves.linear,
+                      constraints: BoxConstraints(
+                          minHeight: _authMode == AuthMode.SignUp ? 60 : 0,
+                          maxHeight: _authMode == AuthMode.SignUp ? 120 : 0),
+                        child: FadeTransition(
+                          opacity: _opacityAnimation,
+                          child: SlideTransition(
+                            position: _slideAnimation,
+                            child: TextFormField(
+                              enabled: _authMode == AuthMode.SignUp,
+                              obscureText: _toggleConfirmVisibility,
+                              keyboardType: TextInputType.visiblePassword,
+                              decoration:
+                                  InputDecoration(
+                                      hintText: 'confirm password',
+                                      suffixIcon: IconButton(
+                                        onPressed: (){
+                                          setState(() {
+                                            _toggleConfirmVisibility=!_toggleConfirmVisibility;
+                                          });
+                                        },
+                                        icon: _toggleConfirmVisibility?Icon(Icons.visibility_off):Icon(Icons.visibility),
+                                      )
+                                  ),
+                              validator: _authMode == AuthMode.SignUp
+                                  ? (value) {
+                                      String errorMessage;
+                                      if (value !=
+                                          passwordTextfieldController.text) {
+                                        errorMessage = 'Password not matched';
+                                      }
+                                      return errorMessage;
                                     }
-                                    return errorMessage;
-                                  }
-                                : null,
+                                  : null,
+                            ),
                           ),
                         ),
-                      ),
+
                     ),
-                  ),
-                ],
+                  ],
+                ),
+                // ),
               ),
-              // ),
             ),
             SizedBox(
-              height: 20,
+              height: 30,
             ),
-            RaisedButton(
-              child: _authMode == AuthMode.SignUp
-                  ? Text(
-                      'SignUp',
-                      style: TextStyle(color: Colors.white),
-                    )
-                  : Text(
-                      'LogIn',
-                      style: TextStyle(color: Colors.white),
-                    ),
-              color: Color(0xFF24d39d),
-              onPressed: _submit,
+            ButtonTheme(
+              height: 40.0,
+              minWidth: 140.0,
+              child: RaisedButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0)),
+                child: _authMode == AuthMode.SignUp
+                    ? Text(
+                        'SignUp',
+                        style: GoogleFonts.ubuntu(color: Colors.white,fontSize: 16.0,fontWeight: FontWeight.bold),
+                      )
+                    : Text(
+                        'LogIn',
+                        style: GoogleFonts.ubuntu(color: Colors.white,fontSize: 16.0,fontWeight: FontWeight.bold),
+                      ),
+                color: Color(0xFF24d39d),
+                onPressed: _submit,
+              ),
             ),
             SizedBox(
               height: 15,
@@ -353,16 +374,18 @@ class _AuthenticationFormState extends State<AuthenticationForm>
                     text: _authMode == AuthMode.SignUp
                         ? 'Already have an account? '
                         : 'Do not have an account? ',
-                    style: TextStyle(color: Colors.black, fontSize: 16)),
+                    style: GoogleFonts.ubuntu(color: Colors.grey, fontSize: 16)),
                 TextSpan(
                     text: _authMode == AuthMode.SignUp
                         ? 'Login here.'
                         : 'SignUp here.',
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                        decoration: TextDecoration.underline,
-                        decorationThickness: 2.0),
+                    style: GoogleFonts.ubuntu(
+                        fontSize: 18,
+                        color: Colors.greenAccent[400],
+                        fontWeight: FontWeight.bold
+                        //decoration: TextDecoration.underline,
+                        //decorationThickness: 2.0
+                         ),
                     recognizer: TapGestureRecognizer()..onTap = switchAuthMode)
               ]),
             )

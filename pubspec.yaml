@@ -31,7 +31,9 @@ dependencies:
   firebase_messaging:  ^6.0.13
   intl: ^0.16.1
   shared_preferences: ^0.5.6+3
+  google_fonts: ^0.4.0
   page_transition: ^1.1.5
+
 
   
   
@@ -63,6 +65,7 @@ flutter:
    - assets/circle_profile_image.jpg
    - assets/user_profile_avatar_image.png
    - assets/use_profile_avatar_male_image.png
+   - assets/logo.png
    
 
    
