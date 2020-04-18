@@ -37,26 +37,46 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   SharedPreferences _sharedPreferences;
 
+
+  Widget _buildAdressField() {
+    return TextFormField(
+        decoration: InputDecoration(
+          border:
+          OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+          hintText: 'আপনার প্রতিষ্ঠানের ঠিকানা লিখুন ',
+          labelText: 'প্রতিষ্ঠানের ঠিকানা',
+        ),
+        validator: (String value) {
+          if (value.isEmpty) {
+            return '* প্রতিষ্ঠানের ঠিকানা লিখা প্রযোজ্য';
+          }
+          return null;
+        },
+        onSaved: (String value) {
+         var _address = value;
+        });
+  }
+
   Future<void> _showOptionsDialog() {
     return showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Make a Choice'),
+            title: Text('Select Photo'),
             content: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: GestureDetector(
-                      child: Text('Galery'),
+                      child: Text('from galery'),
                       onTap: _pickImageFromGallery,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: GestureDetector(
-                      child: Text('Camera'),
+                      child: Text('from camera'),
                       onTap: _pickImageFromCamera,
                     ),
                   ),
@@ -129,15 +149,16 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState.validate()) {
+   /* if (!_formKey.currentState.validate()) {
       return;
     }
-    _formKey.currentState.save();
+    _formKey.currentState.save();*/
     if (_pickedImage == null) {
-      Fluttertoast.showToast(msg: 'Image must not be empty');
+      Fluttertoast.showToast(msg: 'Image must not be empty',backgroundColor: Colors.green);
+      pro.hide();
       return;
     }
-    pro.show();
+    //pro.show();
     Firestore firestore = Firestore.instance;
     String autoId = firestore.collection('Users').document().documentID;
     final storage = FirebaseStorage.instance
@@ -192,7 +213,7 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Color(0xFF24D39D),
+     // backgroundColor: Color(0xFF24D39D),
       body: SingleChildScrollView(
         child: Container(
           height: height,
@@ -235,6 +256,8 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
                     ),
                     RaisedButton(
                       color: Color(0xFF039be5),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0)),
                       onPressed: _showOptionsDialog,
                       child: Text(
                         'Select Image',
@@ -246,11 +269,7 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
               ),
               Expanded(
                 child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(60),
-                          topRight: Radius.circular(60))),
+
                   child: Column(
                     children: <Widget>[
                       Container(
@@ -261,7 +280,7 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
                             child: Column(
                               children: <Widget>[
                                 SizedBox(
-                                  height: 40,
+                                  height: 20,
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.only(
@@ -273,15 +292,12 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
                                   child: TextFormField(
                                       keyboardType: TextInputType.text,
                                       decoration: InputDecoration(
-                                        hintText: 'Enter your full name',
+                                        border:
+                                        OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+                                        hintText: 'Enter Your Full Name ',
+                                        labelText: 'Full Name',
                                       ),
-                                      // validator: (value) {
-                                      //   String errorMessage;
-                                      //   if (value.isEmpty || !value.contains('@')) {
-                                      //     errorMessage = 'Invaid email !';
-                                      //   }
-                                      //   return errorMessage;
-                                      // },
+
                                       onSaved: (value) {
                                         fullName = value;
                                       },
@@ -292,7 +308,8 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
                                               'Please enter your fullname';
                                         }
                                         return errorMessage;
-                                      }),
+                                      }
+                                      ),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.only(
@@ -304,7 +321,11 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
                                   child: TextFormField(
                                     keyboardType: TextInputType.visiblePassword,
                                     decoration: InputDecoration(
-                                        hintText: 'Enter your profile name'),
+                                      border:
+                                      OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+                                      hintText: 'Enter Your Profile Name ',
+                                      labelText: 'Profile Name',
+                                    ),
                                     validator: (value) {
                                       String errorMessage;
                                       if (value.isEmpty) {
@@ -328,7 +349,11 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
                                   child: TextFormField(
                                     keyboardType: TextInputType.visiblePassword,
                                     decoration: InputDecoration(
-                                        hintText: 'Enter your Occupation'),
+                                      border:
+                                      OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+                                      hintText: 'Write Down Your Occupation',
+                                      labelText: 'Your Occupation',
+                                    ),
                                     validator: (value) {
                                       String errorMessage;
                                       if (value.isEmpty) {
@@ -352,7 +377,11 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
                                   child: TextFormField(
                                     keyboardType: TextInputType.visiblePassword,
                                     decoration: InputDecoration(
-                                        hintText: 'Enter your hobby'),
+                                        border:
+                                        OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+                                        hintText: 'Some of Your Hobbies',
+                                        labelText: 'Your Hobbies',
+                                    ),
                                     validator: (value) {
                                       String errorMessage;
                                       if (value.isEmpty) {
@@ -374,15 +403,28 @@ class _SetProfileScreenState extends State<SetProfileScreen> {
                       SizedBox(
                         height: 15,
                       ),
-                      RaisedButton(
-                        color: Color(0xFF24D39D),
-                        onPressed: () {
-                          pro.show();
-                          _submit();
-                        },
-                        child: Text(
-                          'Save',
-                          style: TextStyle(color: Colors.white),
+                      ButtonTheme(
+                        height: 40.0,
+                        minWidth: 160.0,
+                        child: RaisedButton(
+                          color: Color(0xFF24D39D),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0)),
+                          onPressed: () {
+
+                            if (!_formKey.currentState.validate()) {
+                              return;
+                            }
+                            _formKey.currentState.save();
+
+
+                            pro.show();
+                            _submit();
+                          },
+                          child: Text(
+                            'Save',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                       ),
                     ],
